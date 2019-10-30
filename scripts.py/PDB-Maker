@@ -1,0 +1,62 @@
+#!/usr/bin/env python
+
+"""
+I get a folder as input, check if each file is an SDF. 
+By retrieving those SDF files, I convert each drug 
+into a PDB by first generating H atoms and then generating
+5 conformations for each drug. 
+Then I output the files into another directory based 
+on the drug suffix. 
+"""
+
+from __future__ import print_function
+import time
+import argparse as ap
+from rdkit import Chem
+from rdkit.Chem import AllChem
+from pathlib import Path
+
+start_time = time.time()
+
+# Turning the input and parsing via argparse.
+parser = ap.ArgumentParser(description=__doc__)
+parser.add_argument("drug_input", help='Input file in SDF format')
+args = parser.parse_args()
+
+
+
+# Sdf is converted to Smiles. Space
+drug_folder = Path(args.drug_input)
+# This will only retrieve the sdf files in a folder. 
+for drug in drug_folder.rglob("*.sdf"):
+
+    print('Initializing conversion')
+    print(str(drug))
+
+    suppl = Chem.SDMolSupplier(str(drug))
+
+    for mol in suppl:
+        print("mole: %s" % mol)
+
+        # Generate 3D coordinates
+        m = Chem.AddHs(mol)
+        cids = AllChem.EmbedMultipleConfs(m, numConfs=5, randomSeed=917)
+        #AllChem.MMFFOptimizeMoleculeConfs(m)
+
+        # turned this to the new formatting techique now. 
+        # Enter modern Python. 
+        drug_path = Path('/home/nad/Desktop/ncb/%s/' %(str(drug.stem)))
+        drug_path.mkdir(parents=True)
+
+         # Iterate over conformer ids
+        for i in cids:
+            # Create a writer for each conformer
+            fname = f'%s/conformer_%d.pdb' % (drug_path, i)
+            writer = Chem.PDBWriter(fname)
+            # Write specific conformer
+            writer.write(m, confId=i)
+            
+    print("Drug Done")
+
+# Finally we need to track time too, right. 
+print("--- %s seconds ---" % (time.time() - start_time))
