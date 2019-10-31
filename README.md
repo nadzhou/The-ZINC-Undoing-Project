@@ -1,5 +1,30 @@
 # The-ZINC-Undoing-Projectas
 
+# PDB-MAKER
+Perhaps the most important part of this repository is the PDB-Maker file. through the command line, I get an input of the
+directory to retrieve ALL the sdf files from with the additional optional argument of the number of conformations that the
+user might want to generate. this optional argument is set to 1 by default. 
+
+    parser = ap.ArgumentParser(description=__doc__)
+    parser.add_argument("drug_input", help='Input file in SDF format')
+    parser.add_argument("--c", type=int, default=1,
+            help="get number of  conformations needed to be generated")
+    args = parser.parse_args()
+  the code will then write the files on desktop on the subfolder named after the drug's stem name.
+  
+        drug_path = Path(f'/home/nad/Desktop/n34/{drug.stem}/')       
+        drug_path.mkdir(parents=True)
+
+         # Iterate over conformer ids
+        for i in cids:
+            # Create a writer for each conformer
+            fname = drug_path/f'{drug_path}/conformer_{i}.pdb'
+            writer = Chem.PDBWriter(str(fname))
+            # Write specific conformer
+            writer.write(m, confId=i)
+
+# INTRODUCTION 
+
 hey everyone. 
 
 ZINC is a  big database of commcerically available compounds which we can use to virtual screen and this is done mostly computationally (as the name virtual screening suggests), popular among friends for being the first step to virtual screening. I'll be doing some manipulation of the database here. 
