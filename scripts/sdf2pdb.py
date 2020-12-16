@@ -21,7 +21,10 @@ def main():
 def args_sdf2pdb(): 
     """Get the drug folder and number of conformations from user in command line"""
     parser = ap.ArgumentParser(description=__doc__)
+
     parser.add_argument("drug_input", help='Input file in SDF format')
+    parser.add_argument("output_dir", help='Output directory')
+
     parser.add_argument("--c", type=int, default=1,
                 help="get number of  conformations needed to be generated")
 
@@ -32,7 +35,7 @@ def retrieve_drug_folder(args: str):
     return Path(args.drug_input)
 
 
-def sdf2pdb(drug_folder: str):  
+def sdf2pdb(drug_folder: str, args):  
     """Convert the whole drug directory into PDB structures."""
     for drug in drug_folder.rglob("*.sdf"):
 
@@ -42,15 +45,12 @@ def sdf2pdb(drug_folder: str):
         suppl = Chem.SDMolSupplier(str(drug))
 
         for mol in suppl:
-            print("mole: %s" % mol)
-
-            # Generate 3D coordinates
             m = Chem.AddHs(mol)
             cids = AllChem.EmbedMultipleConfs(m, numConfs=args.c, randomSeed=917)
             #AllChem.MMFFOptimizeMoleculeConfs(m)
 
-            drug_path = Path(f'/home/nad/Desktop/n34/{drug.stem}/')       
-            drug_path.mkdir(parents=True)
+            drug_path = Path(f'{args.output_dir}/{drug.stem}/')       
+            drug_path.mkdir(parents=True, exist_ok=True)
 
             # Iterate over conformer ids
             for i in cids:
