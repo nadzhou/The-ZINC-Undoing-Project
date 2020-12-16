@@ -15,15 +15,18 @@ parser.add_argument("drug_input")
 args = parser.parse_args()
 drug = args.drug_input
 
-with open(drug):
-    suppl = Chem.SDMolSupplier(drug)
-    with open('smiles.smi', 'w') as f: 
-        for mol in suppl: 
-            smi = Chem.MolToSmiles(mol)
-            f.write("{}\n".format(smi))
-    f.close()
 
-    with open('smiles.smi', 'r') as f: 
+def write_smi(drug): 
+    with open(drug):
+        suppl = Chem.SDMolSupplier(drug)
+        with open('smiles.smi', 'w') as f: 
+            for mol in suppl: 
+                smi = Chem.MolToSmiles(mol)
+                f.write("{}\n".format(smi))
+
+
+def draw_finger_print(smile_file): 
+    with open(smile_file, 'r') as f: 
         for mol in f:  
             refmol = Chem.MolFromSmiles('CCCN(CCCCN1CCN(c2ccccc2OC)CC1)Cc1ccc2ccccc2c1') # this is the template here
 
